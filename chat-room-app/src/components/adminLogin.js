@@ -8,21 +8,47 @@ export default class AdminLogin extends Component {
     super(props);
     this.state = {
       username: "",
-      password: ""
+      password: "",
+      usernameErrorText: "",
+      passwordErrorText: ""
     };
   }
 
-  validateForm() {
-    return this.state.username.length > 0 && this.state.password.length > 0;
+  validateInput = (input) => {
+    return input.length > 0;
   }
 
-  handleSubmit = e => {
+  authorizeUser = (username, password) => {
+    if (!this.validateInput(this.state.username)){
+      this.setState({
+        usernameErrorText: "Username Required"
+      });
+      return false;
+    } else if (username !== "admin") {
+      this.setState({
+        usernameErrorText: "Username does not exist"
+      });
+      return false;
+    }
+
+    if (!this.validateInput(this.state.password)){
+      this.setState({
+        passwordErrorText: "Password Required"
+      });
+      return false;
+    } else if (password !== "password") {
+      this.setState({
+        passwordErrorText: "Password does not match"
+      });
+      return false;
+    }
+    return true;
+  }
+
+  handleLogin = (e) => {
     e.preventDefault();
-    if (
-      this.validateForm() &&
-      this.state.username === "admin" &&
-      this.state.password === "password"
-    ) {
+    if (this.authorizeUser(this.state.username, this.state.password))
+    {
       this.props.setAdminLoggedIn(true);
       this.props.setLoggingIn(false);
     }
@@ -35,25 +61,38 @@ export default class AdminLogin extends Component {
           <form autoComplete="off">
             <TextField
               id="username"
+              required
               label="Username"
-              onChange={e => this.setState({ username: e.target.value })}
+              onChange={e => this.setState({ username: e.target.value, usernameErrorText: '' })}
               variant="outlined"
+              error={this.state.usernameErrorText.length === 0 ? false : true}
+              helperText={this.state.usernameErrorText}
             />
             <br></br>
             <TextField
               id="password"
+              required
               label="Password"
-              onChange={e => this.setState({ password: e.target.value })}
+              onChange={e => this.setState({ password: e.target.value, passwordErrorText: '' })}
               type="password"
               variant="outlined"
+              error={this.state.passwordErrorText.length === 0 ? false : true}
+              helperText={this.state.passwordErrorText}
             />
             <br></br>
             <Button
               variant="contained"
               color="primary"
-              onClick={e => this.handleSubmit(e)}
+              onClick={e => this.handleLogin(e)}
             >
               Login
+            </Button>
+            <Button
+              variant="contained"
+              color="default"
+              onClick={() => {this.props.handleCancel()}}
+            >
+              Cancel
             </Button>
           </form>
         </Paper>

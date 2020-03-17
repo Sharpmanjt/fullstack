@@ -118,13 +118,6 @@ export default class AdminScreen extends Component {
             <Button onClick={this.showRooms}>Rooms</Button>
           </ButtonGroup>
         </div>
-        <div className="room-button">
-          {this.state.showRoomTable && (
-            <Button variant="contained" onClick={() => this.openDialog(null)}>
-              Add Room
-            </Button>
-          )}
-        </div>
         <div className="table-div">
           <DataTable
             tableColumns={this.state.tableColumns}
@@ -140,6 +133,13 @@ export default class AdminScreen extends Component {
           saveRoom={this.saveRoom}
           room={this.state.currentRoom}
         ></RoomDialog>
+        <div className="room-button">
+          {this.state.showRoomTable && (
+            <Button variant="contained" onClick={() => this.openDialog(null)}>
+              Add Room
+            </Button>
+          )}
+        </div>
       </div>
     );
   }

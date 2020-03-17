@@ -13,9 +13,12 @@
 }
 
 .room-button {
-  text-align: right;
-  width: 1100px;
+  text-align: center;
   margin: auto;
+}
+
+.room-button Button {
+  width: 200px;
 }
 
 .table-div {
@@ -27,7 +30,11 @@
 .login-container {
   width: 500px;
   margin: 50px auto;
-  height: 200px;
+  height: 300px;
+}
+
+.login-container Button {
+  margin: 5px;
 }
 
 .chat-container {

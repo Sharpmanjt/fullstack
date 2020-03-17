@@ -26,6 +26,13 @@ export default class App extends Component {
     });
   };
 
+  cancelLoginDialog = () => {
+    this.setState({
+      isAdminLoggedIn: false,
+      loggingIn: false
+    });
+  }
+
   render() {
     return (
       <div>
@@ -33,6 +40,7 @@ export default class App extends Component {
           <AdminLogin
             setAdminLoggedIn={this.setAdminLoggedIn}
             setLoggingIn={this.setLoggingIn}
+            handleCancel={this.cancelLoginDialog}
           ></AdminLogin>
         ) : (
           [
