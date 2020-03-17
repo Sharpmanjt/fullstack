@@ -47,8 +47,8 @@ export default class GuestScreen extends Component {
             variant="outlined"
             className="select-room"
           >
-            {this.state.rooms.map(room => (
-              <MenuItem value={room.room}>{room.room}</MenuItem>
+            {this.state.rooms.filter(room => room.status === "active").map(room => (
+              <MenuItem value={room.name} key={room.name}>{room.name}</MenuItem>
             ))}
           </TextField>
         </div>

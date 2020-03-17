@@ -6,25 +6,25 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import MenuItem from "@material-ui/core/MenuItem";
+import UtilityFunctions from "../utilityFunctions";
 
 export default class roomDialog extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      showRoomDialog: this.props.showRoomDialog,
-      isNewRoom: this.props.isNewRoom,
-      roomName: this.props.roomName,
-      roomStatus: this.props.roomStatus,
+      room: this.props.room,
+      roomName: this.props.room ? this.props.room.name : "",
+      roomStatus: this.props.room ? this.props.room.status : "active",
       errorText: ""
     };
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.showRoomDialog !== this.props.showRoomDialog) {
+    if (prevProps !== this.props) {
       this.setState({
-        showRoomDialog: this.props.showRoomDialog,
-        roomName: this.props.roomName,
-        roomStatus: this.props.roomStatus
+        room: this.props.room,
+        roomName: this.props.room ? this.props.room.name : "",
+        roomStatus: this.props.room ? this.props.room.status : "active"
       });
     }
   }
@@ -38,31 +38,39 @@ export default class roomDialog extends Component {
 
   handleSave = () => {
     if (this.state.roomName.length === 0) {
-      //room name is missing
       this.setState({
         errorText: "Room Name Required"
       });
     } else {
-      //room name exists
       this.setState({
         errorText: ""
       });
-      this.props.submitDialog();
+      let room = { ...this.state.room };
+      room.name = this.state.roomName;
+      room.status = this.state.roomStatus;
+      room.dateEdited = UtilityFunctions.getCurrentDate();
+      this.props.saveRoom(room);
     }
+  };
+
+  handleInputChange = event => {
+    this.setState({
+      [event.target.name]: event.target.value
+    });
   };
 
   render() {
     return (
       <div>
         <Dialog
-          open={this.state.showRoomDialog}
+          open={this.props.showRoomDialog}
           onClose={this.handleClose}
           className="room-dialog"
           fullWidth={true}
           maxWidth={"xs"}
         >
           <DialogTitle>
-            {this.state.isNewRoom ? "Add Room" : "Edit Room"}
+            {this.state.room ? "Edit Room" : "Add Room"}
           </DialogTitle>
           <div className="room-dialog-content">
             <DialogContent>
@@ -70,7 +78,9 @@ export default class roomDialog extends Component {
                 required
                 id="roomName"
                 label="Name"
-                onChange={e => this.setState({ roomName: e.target.value })}
+                name="roomName"
+                value={this.state.roomName}
+                onChange={this.handleInputChange}
                 variant="outlined"
                 className="room-dialog-name"
                 error={this.state.errorText.length === 0 ? false : true}
@@ -79,16 +89,15 @@ export default class roomDialog extends Component {
               <br></br>
               <TextField
                 id="roomStatus"
+                name="roomStatus"
                 select
                 label="Status"
                 value={this.state.roomStatus}
-                onChange={e => this.setState({ roomStatus: e.target.value })}
+                onChange={this.handleInputChange}
                 variant="outlined"
                 className="room-dialog-status"
               >
-                <MenuItem default value="active">
-                  Active
-                </MenuItem>
+                <MenuItem value="active">Active</MenuItem>
                 <MenuItem value="inactive">Inactive</MenuItem>
               </TextField>
             </DialogContent>

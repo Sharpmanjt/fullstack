@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const http = require("http").Server(app);
 const path = require("path");
-const cors = require('cors');
+const cors = require("cors");
 const io = require("socket.io")(http);
 
 var bodyParser = require("body-parser");
@@ -55,7 +55,7 @@ app.get("/api/eventHistory", function(req, res) {
     } else {
       res.status(200).json(docs);
     }
-  });
+  }).select("-__v");
 });
 
 app.get("/api/chatHistory", function(req, res) {
@@ -65,7 +65,7 @@ app.get("/api/chatHistory", function(req, res) {
     } else {
       res.status(200).json(docs);
     }
-  });
+  }).select("-__v");
 });
 
 app.get("/api/rooms", function(req, res) {
@@ -75,7 +75,31 @@ app.get("/api/rooms", function(req, res) {
     } else {
       res.status(200).json(docs);
     }
-  });
+  }).select("-__v");
+});
+
+app.use("/api/rooms/add", function(req, res) {
+  let room = new Room(req.body);
+  room
+    .save()
+    .then(room => {
+      res.status(200).json("Room added successfully.");
+    })
+    .catch(err => {
+      handleError(res, err.message, "Failed to add room.");
+    });
+});
+
+app.use("/api/rooms/update", function(req, res) {
+  let id = req.body._id;
+  let room = req.body;
+  Room.findByIdAndUpdate({ _id: id }, room, { useFindAndModify: false })
+    .then(room => {
+      res.status(200).json("Room updated successfully.");
+    })
+    .catch(err => {
+      handleError(res, err.message, "Failed to add room.");
+    });
 });
 
 function handleError(res, reason, message, code) {

@@ -1,24 +1,27 @@
-var mongoose = require('mongoose');
+var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
 
-let roomSchema = new Schema({
+let roomSchema = new Schema(
+  {
     id: {
-        type: String
+      type: String
     },
-    room: {
-        type: String
+    name: {
+      type: String
     },
     dateCreated: {
-        type: String
+      type: String
     },
     dateEdited: {
-        type: String
-    }, 
+      type: String
+    },
     status: {
-        type: String
+      type: String
     }
-}, {
-    collection: 'rooms'
-})
+  },
+  {
+    collection: "rooms"
+  }
+);
 
-module.exports = mongoose.model('Room', roomSchema);
+module.exports = mongoose.model("Room", roomSchema);

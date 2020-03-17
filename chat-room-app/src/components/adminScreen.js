@@ -3,26 +3,28 @@ import Button from "@material-ui/core/Button";
 import ButtonGroup from "@material-ui/core/ButtonGroup";
 import DataTable from "./dataTable";
 import RoomDialog from "./roomDialog";
-
+import axios from "axios";
+import UtilityFunctions from "../utilityFunctions";
 
 export default class AdminScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
       tableColumns: ["Type", "Date", "Time", "User", "EventID", "PPID"],
-      showAddRoomButton: false,
+      data: [],
+      showRoomTable: false,
       showRoomDialog: false,
-      isNewRoom: true,
-      roomName: "",
-      roomStatus: "active"
+      currentRoom: null
     };
+    this.getTableData("eventHistory");
   }
 
   showEventHistory = () => {
     this.setState({
       tableColumns: ["Type", "Date", "Time", "User", "EventID", "PPID"],
-      showAddRoomButton: false
+      showRoomTable: false
     });
+    this.getTableData("eventHistory");
   };
 
   showChatHistory = () => {
@@ -36,42 +38,70 @@ export default class AdminScreen extends Component {
         "Message",
         "Room"
       ],
-      showAddRoomButton: false
+      showRoomTable: false
     });
+    this.getTableData("chatHistory");
   };
 
   showRooms = () => {
     this.setState({
       tableColumns: [
         "Id",
-        "Room",
+        "Name",
         "Date Created",
         "Date Edited",
         "Status",
         "Action"
       ],
-      showAddRoomButton: true
+      showRoomTable: true
     });
+    this.getTableData("rooms");
   };
 
-  openDialog = () => {
+  getTableData = collection => {
+    axios
+      .get("http://localhost:5000/api/" + collection)
+      .then(response => {
+        this.setState({
+          data: response.data
+        });
+      })
+      .catch(function(error) {
+        console.log(error);
+      });
+  };
+
+  openDialog = (room = null) => {
     this.setState({
-      showRoomDialog: true
+      showRoomDialog: true,
+      currentRoom: room
     });
   };
 
   closeDialog = () => {
     this.setState({
-      showRoomDialog: false
+      showRoomDialog: false,
+      currentRoom: null
     });
   };
 
-  submitDialog = () => {
+  saveRoom = (room) => {
+    if (room._id) {
+      axios.post("http://localhost:5000/api/rooms/update", room);
+    } else {
+      const newRoom = {
+        name: room.name,
+        dateCreated: UtilityFunctions.getCurrentDate(),
+        dateEdited: UtilityFunctions.getCurrentDate(),
+        status: room.status
+      };
+      axios.post("http://localhost:5000/api/rooms/add", newRoom);
+    }
     this.setState({
       showRoomDialog: false,
-      roomName: "",
-      roomStatus: "active"
+      currentRoom: null
     });
+    this.getTableData("rooms");
   };
 
   render() {
@@ -89,24 +119,26 @@ export default class AdminScreen extends Component {
           </ButtonGroup>
         </div>
         <div className="room-button">
-          {this.state.showAddRoomButton ? (
-            <Button variant="contained" onClick={this.openDialog}>
+          {this.state.showRoomTable && (
+            <Button variant="contained" onClick={() => this.openDialog(null)}>
               Add Room
             </Button>
-          ) : (
-            ""
           )}
         </div>
         <div className="table-div">
-          <DataTable tableColumns={this.state.tableColumns}></DataTable>
+          <DataTable
+            tableColumns={this.state.tableColumns}
+            data={this.state.data}
+            key={this.state.data}
+            openDialog={this.openDialog}
+            showRoomTable={this.state.showRoomTable}
+          ></DataTable>
         </div>
         <RoomDialog
           showRoomDialog={this.state.showRoomDialog}
           closeDialog={this.closeDialog}
-          submitDialog={this.submitDialog}
-          roomName={this.state.roomName}
-          roomStatus={this.state.roomStatus}
-          isNewRoom={this.state.isNewRoom}
+          saveRoom={this.saveRoom}
+          room={this.state.currentRoom}
         ></RoomDialog>
       </div>
     );
