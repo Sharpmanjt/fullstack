@@ -89,3 +89,8 @@ form div, .room-dialog-name, .room-dialog-status {
   margin: auto 10px !important;
   height: 56px;
 }
+
+.img-logo {
+  width: 50px;
+  padding-right: 5px;
+}

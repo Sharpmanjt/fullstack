@@ -33,8 +33,9 @@ export default class Navbar extends Component {
       <div>
         <AppBar position="static">
           <Toolbar>
+            <img src="../../cat-logo-lrg.png" alt="Cat Logo" className="img-logo"/>
             <Typography variant="h6" className="title">
-              CHAT ROOM
+              CHATTY CHAT
             </Typography>
             {this.state.isAdminLoggedIn ? (
               <Button
