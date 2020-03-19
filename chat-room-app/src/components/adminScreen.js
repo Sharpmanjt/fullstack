@@ -10,7 +10,7 @@ export default class AdminScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      tableColumns: ["Type", "Date", "Time", "User", "EventID", "PPID"],
+      tableColumns: ["Id", "Type", "Date", "Time", "User", "PPID"],
       data: [],
       showRoomTable: false,
       showRoomDialog: false,
@@ -21,7 +21,7 @@ export default class AdminScreen extends Component {
 
   showEventHistory = () => {
     this.setState({
-      tableColumns: ["Type", "Date", "Time", "User", "EventID", "PPID"],
+      tableColumns: ["Id", "Type", "Date", "Time", "User", "PPID"],
       showRoomTable: false
     });
     this.getTableData("eventHistory");

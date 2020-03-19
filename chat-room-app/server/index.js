@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const http = require("http").Server(app);
+const http = require("http").createServer(app);
 const path = require("path");
 const cors = require("cors");
 const io = require("socket.io")(http);
@@ -55,11 +55,22 @@ app.get("/api/eventHistory", function(req, res) {
     } else {
       res.status(200).json(docs);
     }
-  }).select("-__v");
+  }).select("-_id, -__v");
 });
 
 app.get("/api/chatHistory", function(req, res) {
   Chat.find({}, function(err, docs) {
+    if (err) {
+      handleError(res, err.message, "Failed to get chat history.");
+    } else {
+      res.status(200).json(docs);
+    }
+  }).select("-__v");
+});
+
+app.use("/api/chatHistory/room", function(req, res) {
+  let room = req.query.room;
+  Chat.find({ room: room }, function(err, docs) {
     if (err) {
       handleError(res, err.message, "Failed to get chat history.");
     } else {
@@ -112,14 +123,70 @@ app.get("/*", function(req, res) {
 });
 
 // socket.io setup
-io.on("connection", socket => {
+io.on('connection', function(socket) {
+  const { id } = socket.client;
+  
+  // console.log(`user connected: ${id}`);
   new Event({
-    type: "CONNECTION",
+    type: "CONNECT",
     date: getCurrentDate(),
     time: getCurrentTime(),
     user: "",
     ppid: process.pid
   }).save();
+
+  socket.on('disconnect', function() {
+    // console.log(`user disconnected: ${id}`)
+    new Event({
+      type: "DISCONNECT",
+      date: getCurrentDate(),
+      time: getCurrentTime(),
+      user: "",
+      ppid: process.pid
+    }).save();
+  });
+
+  socket.on("join", ({ username, newRoom }) => {
+    socket.join(newRoom);
+    // console.log(`${username} joined: ${newRoom}`);
+    new Event({
+      type: "JOIN",
+      date: getCurrentDate(),
+      time: getCurrentTime(),
+      user: username,
+      ppid: process.pid
+    }).save();
+    io.to(newRoom).emit('notification', `${username} has joined the chat...`);
+    socket.broadcast.emit();
+  });
+  
+  socket.on("leave", ({ username, currentRoom }) => {
+    socket.leave(currentRoom);
+    // console.log(`${username} left: ${currentRoom}`);
+    new Event({
+      type: "LEAVE",
+      date: getCurrentDate(),
+      time: getCurrentTime(),
+      user: username,
+      ppid: process.pid
+    }).save();
+    io.to(currentRoom).emit('notification', `${username} has left the chat...`);
+    socket.broadcast.emit();
+  });
+
+  socket.on("message", ({ username, msg, room }) => {
+    // console.log(`${username} : ${msg} in ${room}`);
+    new Chat({
+      date: getCurrentDate(),
+      time: getCurrentTime(),
+      sender: username,
+      receiver: "",
+      message: msg,
+      room: room
+    }).save();
+    io.to(room).emit('message', { username, msg });
+    socket.broadcast.emit();
+  });
 });
 
 // utility functions

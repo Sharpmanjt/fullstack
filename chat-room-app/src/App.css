@@ -101,3 +101,19 @@ form div, .room-dialog-name, .room-dialog-status {
   width: 50px;
   padding-right: 5px;
 }
+
+.chat {
+  padding: 10px;
+}
+
+.chat-username {
+  font-weight: bold;
+  color: darkslateblue;
+}
+
+
+.chat-container {
+  overflow: auto;
+  display: flex;
+  flex-direction: column-reverse;
+}

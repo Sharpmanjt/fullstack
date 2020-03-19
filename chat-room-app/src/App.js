@@ -4,6 +4,7 @@ import Navbar from "../src/components/navbar";
 import AdminLogin from "../src/components/adminLogin";
 import AdminScreen from "./components/adminScreen";
 import GuestScreen from "../src/components/guestScreen";
+import io from "socket.io-client";
 
 export default class App extends Component {
   constructor(props) {
@@ -34,6 +35,8 @@ export default class App extends Component {
   }
 
   render() {
+    const socket = io.connect("http://localhost:5000");
+    
     return (
       <div>
         {this.state.loggingIn ? (
@@ -53,7 +56,7 @@ export default class App extends Component {
               {this.state.isAdminLoggedIn ? (
                 <AdminScreen></AdminScreen>
               ) : (
-                <GuestScreen></GuestScreen>
+                <GuestScreen socket={socket}></GuestScreen>
               )}
             </div>
           ]
