@@ -1,7 +1,10 @@
 import React, { Component } from "react";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
+import {BrowserRouter as Router,Route,
+  Redirect,Switch} from 'react-router-dom';
 import Paper from "@material-ui/core/Paper";
+import axios from "axios";
 
 export default class AdminLogin extends Component {
   constructor(props) {
@@ -24,11 +27,6 @@ export default class AdminLogin extends Component {
         usernameErrorText: "Username Required"
       });
       return false;
-    } else if (username !== "admin") {
-      this.setState({
-        usernameErrorText: "Username does not exist"
-      });
-      return false;
     }
 
     if (!this.validateInput(this.state.password)){
@@ -36,21 +34,39 @@ export default class AdminLogin extends Component {
         passwordErrorText: "Password Required"
       });
       return false;
-    } else if (password !== "password") {
-      this.setState({
-        passwordErrorText: "Password does not match"
-      });
-      return false;
     }
     return true;
   }
 
-  handleLogin = (e) => {
+  handleLogin = async (e) => {
     e.preventDefault();
     if (this.authorizeUser(this.state.username, this.state.password))
     {
-      this.props.setAdminLoggedIn(true);
-      this.props.setLoggingIn(false);
+      const response = await axios.post(
+       'http://localhost:5000/api/login',
+       {username : this.state.username,
+        password : this.state.password },
+       { headers: {'Content-Type':'application/json'}}
+      )
+      if(response.data.status === 404){
+        if(response.data.message === 'User does not exist'){
+          this.setState({
+            usernameErrorText: response.data.message
+          })
+        }else{
+          this.setState({
+            passwordErrorText: response.data.message
+          })
+        }
+        return false;
+      }else{
+        const token = response.data.token;
+        localStorage.setItem('jwtToken',token);
+        console.log(response.data.message);
+        this.props.setAdminLoggedIn(true);
+        this.props.setLoggingIn(false);
+      }
+
     }
   };
 

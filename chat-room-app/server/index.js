@@ -4,6 +4,8 @@ const http = require("http").createServer(app);
 const path = require("path");
 const cors = require("cors");
 const io = require("socket.io")(http);
+const jwt = require("jsonwebtoken");
+const config = require("./config");
 
 var bodyParser = require("body-parser");
 var process = require("process");
@@ -12,6 +14,7 @@ var process = require("process");
 let Event = require("./models/eventHistory");
 let Chat = require("./models/chatHistory");
 let Room = require("./models/room");
+let User = require("./models/user");
 
 // connecting to database
 var mongoose = require("mongoose");
@@ -47,6 +50,13 @@ app.use(function(err, req, res, next) {
   res.status(err.statusCode).send(err.message);
 });
 
+let response = {
+  message: '',
+  data: '',
+  status: '',
+  token: 'should be a token'
+}
+
 // API routes
 app.get("/api/eventHistory", function(req, res) {
   Event.find({}, function(err, docs) {
@@ -67,6 +77,44 @@ app.get("/api/chatHistory", function(req, res) {
     }
   }).select("-__v");
 });
+
+app.post("/api/login", function(req,res){
+  response = {
+    message: '',
+    data: '',
+    status: '',
+    token: ''
+  }
+  let username = req.body.username;
+  let password = req.body.password;
+  User.find({ username: username }, function(err,docs){
+    if (err) {
+      handleError(res, err.message, "Failed to get chat history.");
+    } else {
+      if(docs.length == 0){
+        response.message = 'User does not exist';
+        response.status = 404;
+        response.data = '';
+      }
+      else if(docs[0]["password"] != password){
+        response.message = 'Password does not match';
+        response.status = 404;
+        response.data = '';
+      }
+      else{
+        const token = jwt.sign({
+          id: docs[0]["_id"],
+          username: docs[0]["username"]
+        }, config.token);
+        response.token = token;
+        response.message = 'Successfully authenticated';
+        response.status = 200;
+        response.data = docs;
+      }
+      res.status(200).json(response);
+    }
+  }).select("-__v");
+})
 
 app.use("/api/chatHistory/room", function(req, res) {
   let room = req.query.room;
