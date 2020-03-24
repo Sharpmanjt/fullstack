@@ -7,19 +7,27 @@ export default class ChatRoom extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      username : "",
       message: "",
-      chat: this.props.chat
+      chat: this.props.chat,
+      lastChats: [],
+      chatsDisplayed: false
     };
   }
 
   componentDidUpdate(prevProps) {
+    console.log("Update called");
     if (prevProps.chat !== this.props.chat) {
       this.setState({
         chat: this.props.chat,
+        lastChats:this.props.history,
+        chatsDisplayed: this.props.newUser
         // room: this.props.room
       });
     }
+    console.log("Username is: "+this.props.username)
   }
+
 
   renderChat = () => {
     return this.state.chat.map(({ username, msg }) => (
@@ -31,6 +39,20 @@ export default class ChatRoom extends Component {
           </div>
         ) : (
           <span className="chat-message">
+            
+
+            {this.state.lastChats != undefined ?(
+            <div>
+                {this.state.lastChats.map(chat=>{let text = chat.split(" ");
+                if(text[0] != this.props.username){//this.setState({chatsDisplayed:false});
+                
+                  return <div> <span className="chat-username">{text[0]}    </span><span className="chat-message">{text[1]}</span><br/><br/></div>
+                }})}
+            
+              </div>
+            ):(
+              <div></div>
+            )}
             <i>{msg}</i>
           </span>
         )}
@@ -46,6 +68,16 @@ export default class ChatRoom extends Component {
   handleKeyPress = e => {
     if (e.key === 'Enter') this.handleSend();
   }
+  /*
+  {this.state.lastChats != undefined && this.state.lastChats.length > 0 && this.state.chatsDisplayed == true?(
+              <div>
+                {this.state.lastChats.map(chat=>{let text = chat.split(" ");//this.setState({chatsDisplayed:false});
+                return <div> <span className="chat-username">{text[0]}    </span><span className="chat-message">{text[1]}</span><br/><br/></div>})}
+              </div>
+            ):(
+              <div></div>
+            )}
+  */
 
   render() {
     return (
@@ -77,3 +109,7 @@ export default class ChatRoom extends Component {
     );
   }
 }
+
+/* TODO:
+    1. Find a way to store the username on the chat history so i can identify the different isers that sent the messages
+*/

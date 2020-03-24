@@ -16,6 +16,8 @@ let Chat = require("./models/chatHistory");
 let Room = require("./models/room");
 let User = require("./models/user");
 
+let chatHistory = {}
+
 // connecting to database
 var mongoose = require("mongoose");
 mongoose.Promise = global.Promise;
@@ -204,7 +206,8 @@ io.on('connection', function(socket) {
       user: username,
       ppid: process.pid
     }).save();
-    io.to(newRoom).emit('notification', `${username} has joined the chat...`);
+    let msg = `${username} has joined the chat`;
+    io.to(newRoom).emit('notification',{msg,chatHistory});
     socket.broadcast.emit();
   });
   
@@ -218,11 +221,23 @@ io.on('connection', function(socket) {
       user: username,
       ppid: process.pid
     }).save();
-    io.to(currentRoom).emit('notification', `${username} has left the chat...`);
+    let msg = `${username} has left the chat`;
+    io.to(currentRoom).emit('notification',{msg,chatHistory});
     socket.broadcast.emit();
   });
 
-  socket.on("message", ({ username, msg, room }) => {
+  socket.on("message", ({ username, msg, room, obj }) => {
+    let added = false;
+    for(let roomObj in chatHistory){
+      if(roomObj == room){
+        chatHistory[roomObj].push(obj[room][0]);
+        added = true;
+      }
+    }
+    if(!added){
+      chatHistory[room] = obj[room];
+    }
+    console.log(JSON.stringify(chatHistory));
     // console.log(`${username} : ${msg} in ${room}`);
     new Chat({
       date: getCurrentDate(),
@@ -232,7 +247,7 @@ io.on('connection', function(socket) {
       message: msg,
       room: room
     }).save();
-    io.to(room).emit('message', { username, msg });
+    io.to(room).emit('message', { username, msg, chatHistory });
     socket.broadcast.emit();
   });
 });

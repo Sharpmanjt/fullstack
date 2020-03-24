@@ -11,7 +11,10 @@ export default class GuestScreen extends Component {
       username: "",
       room: "",
       rooms: [],
-      chat: []
+      chat: [],
+      newUser:false,
+      history : [],
+      chatHistory : {}
     };
   }
 
@@ -27,17 +30,32 @@ export default class GuestScreen extends Component {
         console.log(error);
       });
 
-    this.props.socket.on("message", ({ username, msg }) => {
-      this.setState({
+    this.props.socket.on("message", ({ username, msg, chatHistory }) => {
+      let statusCopy = Object.assign({},this.state);
+      statusCopy["chatHistory"] = chatHistory;
+      statusCopy["history"] = chatHistory[this.state.room];
+      statusCopy["chat"] = [...this.state.chat,{ username, msg }]
+      /*this.setState({
         chat: [...this.state.chat, { username, msg }]
-      });
+      });*/
+      this.setState(statusCopy);
+      setTimeout(()=>{
+        console.log(JSON.stringify(this.state))
+      },200)
     });
 
-    this.props.socket.on("notification", msg => {
+    this.props.socket.on("notification", ({msg,chatHistory}) => {
       const username = '';
-      this.setState({
-        chat: [...this.state.chat, {username, msg}]
-      });
+      let statusCopy = Object.assign({},this.state);
+      statusCopy["chatHistory"] = chatHistory;
+      statusCopy["history"] = chatHistory[this.state.room];
+      statusCopy["chat"] = [...this.state.chat,{ username, msg }]
+      statusCopy["newUser"] = true;
+
+      this.setState(statusCopy);
+      setTimeout(()=>{
+        console.log(JSON.stringify(this.state))
+      },200)
     });
   }
 
@@ -51,9 +69,16 @@ export default class GuestScreen extends Component {
   };
 
   onMessageSent = msg => {
+    this.setState({newUser:false})
+    let list = []
+    list.push(this.state.username + " "+ msg);
+    let room = this.state.room;
+    let obj = {};
+    obj[room] = list;
+    console.log(obj[room]);
+
     const username = this.state.username ? this.state.username : 'Anonymous';
-    const room = this.state.room;
-    this.props.socket.emit("message", { username, msg, room });
+    this.props.socket.emit("message", { username, msg, room, obj });
     this.setState({ message: "" });
   };
 
@@ -87,7 +112,7 @@ export default class GuestScreen extends Component {
               ))}
           </TextField>
         </div>
-        <ChatRoom socket={this.props.socket} chat={this.state.chat} handleSend={this.onMessageSent} room={this.state.room}></ChatRoom>
+        <ChatRoom history={this.state.history} username={this.state.username} newUser={this.state.newUser} socket={this.props.socket} chat={this.state.chat} handleSend={this.onMessageSent} room={this.state.room}></ChatRoom>
       </div>
     );
   }
