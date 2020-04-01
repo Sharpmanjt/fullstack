@@ -110,10 +110,49 @@ form div, .room-dialog-name, .room-dialog-status {
   font-weight: bold;
   color: darkslateblue;
 }
+.pagination {
+  display: flex;
+  padding: 2px;
+}
+
+.pagination a {
+  text-decoration: none;
+  color: blue;
+ float: left;
+ padding: 10px 15px;
+ border: 0.5px solid rgb(167, 167, 167);
+} 
+.pagination a:hover{
+  background-color:rgb(219, 218, 218);
+}
+
+.pagination-div{
+  float: right;
+  margin-right: 10%;
+}
+
+.page-item{
+  list-style-type: none;
+}
 
 
 .chat-container {
   overflow: auto;
   display: flex;
   flex-direction: column-reverse;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+.filter-box{
+  margin-top: 2%;
+  margin-bottom: 2%;
+  margin-left:11%;
+}
+.select-sort{
+  position: relative;
+  left: 55%;
+  width: 12%;
 }

@@ -17,6 +17,9 @@ let Room = require("./models/room");
 let User = require("./models/user");
 
 let chatHistory = {}
+let showHistory = false;
+let showHistoryfor = '';
+let guests = [];
 
 // connecting to database
 var mongoose = require("mongoose");
@@ -198,6 +201,10 @@ io.on('connection', function(socket) {
 
   socket.on("join", ({ username, newRoom }) => {
     socket.join(newRoom);
+    if(username == "guest"){
+      username = addGuest();
+      io.to(newRoom).emit('setGuest',{username});
+    }
     // console.log(`${username} joined: ${newRoom}`);
     new Event({
       type: "JOIN",
@@ -207,7 +214,10 @@ io.on('connection', function(socket) {
       ppid: process.pid
     }).save();
     let msg = `${username} has joined the chat`;
-    io.to(newRoom).emit('notification',{msg,chatHistory});
+    console.log(msg);
+    showHistory = true;
+    showHistoryfor = username;
+    io.to(newRoom).emit('notification',{username,msg,chatHistory,showHistoryfor});
     socket.broadcast.emit();
   });
   
@@ -230,6 +240,9 @@ io.on('connection', function(socket) {
     let added = false;
     for(let roomObj in chatHistory){
       if(roomObj == room){
+        if(chatHistory[roomObj].length > 4){
+          chatHistory[roomObj].shift();
+        }
         chatHistory[roomObj].push(obj[room][0]);
         added = true;
       }
@@ -237,8 +250,8 @@ io.on('connection', function(socket) {
     if(!added){
       chatHistory[room] = obj[room];
     }
+    showHistory = false;
     console.log(JSON.stringify(chatHistory));
-    // console.log(`${username} : ${msg} in ${room}`);
     new Chat({
       date: getCurrentDate(),
       time: getCurrentTime(),
@@ -251,6 +264,21 @@ io.on('connection', function(socket) {
     socket.broadcast.emit();
   });
 });
+
+function addGuest(){
+  let guest = '';
+  if(guests.length == 0){
+    guest = 'guest1'
+  }else{
+    let lastGuest = guests[guests.length-1];
+    lastGuest = lastGuest.substring(5,6);
+    lastGuest = parseInt(lastGuest);
+    lastGuest++;
+    guest = 'guest'+lastGuest;
+  }
+  guests.push(guest);
+  return guest;
+}
 
 // utility functions
 function getCurrentDate() {

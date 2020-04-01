@@ -7,7 +7,7 @@ export default class ChatRoom extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      username : "",
+      username : this.props.username,
       message: "",
       chat: this.props.chat,
       lastChats: [],
@@ -16,12 +16,12 @@ export default class ChatRoom extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    console.log("Update called");
     if (prevProps.chat !== this.props.chat) {
       this.setState({
         chat: this.props.chat,
         lastChats:this.props.history,
-        chatsDisplayed: this.props.newUser
+        chatsDisplayed: this.props.newUser,
+        username:this.props.showHistoryFor
         // room: this.props.room
       });
     }
@@ -43,10 +43,14 @@ export default class ChatRoom extends Component {
 
             {this.state.lastChats != undefined ?(
             <div>
-                {this.state.lastChats.map(chat=>{let text = chat.split(" ");
-                if(text[0] != this.props.username){//this.setState({chatsDisplayed:false});
-                
-                  return <div> <span className="chat-username">{text[0]}    </span><span className="chat-message">{text[1]}</span><br/><br/></div>
+               {this.state.lastChats.map(chat=>{
+                let text = chat.split(" ");
+                let message = chat.substr(text[0].length,chat.length)
+                if((text[0] != this.props.username && this.props.showHistory == true) || this.props.username == this.state.username){//this.setState({chatsDisplayed:false});
+                  console.log('Username from props: '+this.props.username);
+                  console.log('Username stored: '+ this.state.username);
+                  this.state.username = this.props.username;
+                  return <div> <span className="chat-username">{text[0]}    </span><span className="chat-message">{message}</span><br/><br/></div>
                 }})}
             
               </div>
@@ -68,16 +72,6 @@ export default class ChatRoom extends Component {
   handleKeyPress = e => {
     if (e.key === 'Enter') this.handleSend();
   }
-  /*
-  {this.state.lastChats != undefined && this.state.lastChats.length > 0 && this.state.chatsDisplayed == true?(
-              <div>
-                {this.state.lastChats.map(chat=>{let text = chat.split(" ");//this.setState({chatsDisplayed:false});
-                return <div> <span className="chat-username">{text[0]}    </span><span className="chat-message">{text[1]}</span><br/><br/></div>})}
-              </div>
-            ):(
-              <div></div>
-            )}
-  */
 
   render() {
     return (

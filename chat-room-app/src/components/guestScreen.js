@@ -12,9 +12,10 @@ export default class GuestScreen extends Component {
       room: "",
       rooms: [],
       chat: [],
-      newUser:false,
+      showHistory:false,  
       history : [],
-      chatHistory : {}
+      chatHistory : {},
+      showHistoryFor:''
     };
   }
 
@@ -30,37 +31,47 @@ export default class GuestScreen extends Component {
         console.log(error);
       });
 
-    this.props.socket.on("message", ({ username, msg, chatHistory }) => {
+    this.props.socket.on("message", ({ username, msg, chatHistory, showHistoryFor }) => {
       let statusCopy = Object.assign({},this.state);
       statusCopy["chatHistory"] = chatHistory;
       statusCopy["history"] = chatHistory[this.state.room];
       statusCopy["chat"] = [...this.state.chat,{ username, msg }]
-      /*this.setState({
-        chat: [...this.state.chat, { username, msg }]
-      });*/
-      this.setState(statusCopy);
-      setTimeout(()=>{
-        console.log(JSON.stringify(this.state))
-      },200)
-    });
-
-    this.props.socket.on("notification", ({msg,chatHistory}) => {
-      const username = '';
-      let statusCopy = Object.assign({},this.state);
-      statusCopy["chatHistory"] = chatHistory;
-      statusCopy["history"] = chatHistory[this.state.room];
-      statusCopy["chat"] = [...this.state.chat,{ username, msg }]
-      statusCopy["newUser"] = true;
+      statusCopy["showHistory"] = showHistoryFor;
 
       this.setState(statusCopy);
       setTimeout(()=>{
         console.log(JSON.stringify(this.state))
       },200)
     });
+
+    this.props.socket.on("notification", ({username,msg,chatHistory,showHistory}) => {
+      const user = username;
+      let statusCopy = Object.assign({},this.state);
+      statusCopy["chatHistory"] = chatHistory;
+      statusCopy["history"] = chatHistory[this.state.room];
+      statusCopy["chat"] = [...this.state.chat,{ user, msg }]
+
+      if(showHistory == undefined || showHistory == 'undefined'){
+        statusCopy["showHistory"] = false;
+      }else{
+        statusCopy["showHistory"] = true;
+      }
+
+      this.setState(statusCopy);
+      setTimeout(()=>{
+        console.log(JSON.stringify(this.state))
+      },200)
+    });
+
+    this.props.socket.on("setGuest", ({username})=>{
+      if(this.state.username === ''){
+        this.setState({username:username});
+      }
+    })
   }
 
   onChangeRoom = (e) => {
-    const username = this.state.username ? this.state.username : 'Anonymous';
+    const username = this.state.username ? this.state.username : 'guest';
     const currentRoom = this.state.room;
     if (currentRoom !== "") this.props.socket.emit("leave", { username, currentRoom });
     this.setState({ room: e.target.value, chat: [] });
@@ -77,7 +88,7 @@ export default class GuestScreen extends Component {
     obj[room] = list;
     console.log(obj[room]);
 
-    const username = this.state.username ? this.state.username : 'Anonymous';
+    const username = this.state.username ? this.state.username : 'guest';
     this.props.socket.emit("message", { username, msg, room, obj });
     this.setState({ message: "" });
   };
@@ -112,7 +123,7 @@ export default class GuestScreen extends Component {
               ))}
           </TextField>
         </div>
-        <ChatRoom history={this.state.history} username={this.state.username} newUser={this.state.newUser} socket={this.props.socket} chat={this.state.chat} handleSend={this.onMessageSent} room={this.state.room}></ChatRoom>
+        <ChatRoom showHistoryFor={this.state.showHistoryFor} history={this.state.history} username={this.state.username} showHistory={this.state.showHistory} newUser={this.state.newUser} socket={this.props.socket} chat={this.state.chat} handleSend={this.onMessageSent} room={this.state.room}></ChatRoom>
       </div>
     );
   }
