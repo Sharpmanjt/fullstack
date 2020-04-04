@@ -162,3 +162,6 @@ form div, .room-dialog-name, .room-dialog-status {
 .sort-span:hover{
   cursor: pointer;
 }
+.delete_btn{
+  margin-left:12%;
+}

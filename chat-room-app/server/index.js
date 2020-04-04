@@ -6,6 +6,7 @@ const cors = require("cors");
 const io = require("socket.io")(http);
 const jwt = require("jsonwebtoken");
 const config = require("./config");
+var ObjectId = require('mongodb').ObjectID;
 
 var bodyParser = require("body-parser");
 var process = require("process");
@@ -121,6 +122,18 @@ app.post("/api/login", function(req,res){
   }).select("-__v");
 })
 
+app.post("/api/rooms/delete", function(req,res) {
+  let id = req.body.id;
+  Room.deleteOne({ _id: ObjectId(id)},function(err,docs){
+    if (err) {
+      handleError(res, err.message, "Failed to delete room");
+    } else {
+      console.log("Deletion successful")
+      res.status(200).json(docs);
+    }
+  }).select("-__v");
+})
+
 app.use("/api/chatHistory/room", function(req, res) {
   let room = req.query.room;
   Chat.find({ room: room }, function(err, docs) {
@@ -153,6 +166,8 @@ app.use("/api/rooms/add", function(req, res) {
       handleError(res, err.message, "Failed to add room.");
     });
 });
+
+
 
 app.use("/api/rooms/update", function(req, res) {
   let id = req.body._id;

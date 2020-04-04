@@ -95,6 +95,15 @@ export default class AdminScreen extends Component {
     });
   };
 
+  deleteRoom = async (room = null) => {
+    if(room._id){
+      console.log("Called with id: "+room._id);
+      const response =  await axios.post("http://localhost:5000/api/rooms/delete",{id:room._id});
+      console.log("Response: "+JSON.stringify(response));
+      this.getTableData('rooms');
+    }
+  }
+
   closeDialog = () => {
     this.setState({
       showRoomDialog: false,
@@ -167,6 +176,7 @@ export default class AdminScreen extends Component {
               newData = this.state.data.sort((a,b)=>{
                 return (a['_id']>b['_id']) ? 1:-1
               })
+              console.log(JSON.stringify(newData));
               this.setState({data:newData});
               break;
             case "Type":
@@ -201,6 +211,48 @@ export default class AdminScreen extends Component {
               //ppid
               newData = this.state.data.sort((a,b)=>{
                 return (a['ppid']>b['ppid']) ? 1:-1
+              })
+              this.setState({data:newData});
+              break;
+            case "Sender":
+              newData = this.state.data.sort((a,b)=>{
+                return (a['sender']>b['sender']) ? 1:-1
+              })
+              this.setState({data:newData});
+              break;
+            case "Receiver":
+              newData = this.state.data.sort((a,b)=>{
+                return (a['receiver']>b['receiver']) ? 1:-1
+              })
+              this.setState({data:newData});
+              break;
+            case "Message":
+              newData = this.state.data.sort((a,b)=>{
+                return (a['message']>b['message']) ? 1:-1
+              })
+              this.setState({data:newData});
+              break;
+            case "Room":
+              newData = this.state.data.sort((a,b)=>{
+                return (a['room']>b['room']) ? 1:-1
+              })
+              this.setState({data:newData});
+              break;
+            case "Date Created":
+              newData = this.state.data.sort((a,b)=>{
+                return (a['dateCreated']>b['dateCreated']) ? 1:-1
+              })
+              this.setState({data:newData});
+              break;
+            case "Date Edited":
+              newData = this.state.data.sort((a,b)=>{
+                return (a['dateEdited']>b['dateEdited']) ? 1:-1
+              })
+              this.setState({data:newData});
+              break;
+            case "Status":
+              newData = this.state.data.sort((a,b)=>{
+                return (a['status']>b['status']) ? 1:-1
               })
               this.setState({data:newData});
               break;
@@ -251,6 +303,7 @@ export default class AdminScreen extends Component {
             openDialog={this.openDialog}
             showRoomTable={this.state.showRoomTable}
             sort={this.sort}
+            deleteRoom = {this.deleteRoom}
           ></DataTable> 
         </div>
         <div className="pagination-div">

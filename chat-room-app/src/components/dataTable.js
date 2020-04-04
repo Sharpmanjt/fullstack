@@ -53,6 +53,15 @@ export default class DataTable extends Component {
                     >
                       Edit
                     </Button>
+                    &nbsp;&nbsp;
+                    <Button
+                      variant="contained"
+                      color="secondary"
+                      className="delete_btn"
+                      onClick={() => this.props.deleteRoom(row)}
+                    >
+                      Delete
+                    </Button>
                   </TableCell>
                 ) : (
                   <TableCell></TableCell>
