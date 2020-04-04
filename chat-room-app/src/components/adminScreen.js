@@ -111,9 +111,9 @@ export default class AdminScreen extends Component {
     });
   };
 
-  saveRoom = (room) => {
+  saveRoom = async (room) => {
     if (room._id) {
-      axios.post("http://localhost:5000/api/rooms/update", room);
+      await axios.post("http://localhost:5000/api/rooms/update", room);
     } else {
       const newRoom = {
         name: room.name,
@@ -121,7 +121,7 @@ export default class AdminScreen extends Component {
         dateEdited: UtilityFunctions.getCurrentDate(),
         status: room.status
       };
-      axios.post("http://localhost:5000/api/rooms/add", newRoom);
+      await axios.post("http://localhost:5000/api/rooms/add", newRoom);
     }
     this.setState({
       showRoomDialog: false,
