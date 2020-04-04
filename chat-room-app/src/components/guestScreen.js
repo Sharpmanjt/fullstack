@@ -3,10 +3,12 @@ import ChatRoom from "./chatRoom";
 import TextField from "@material-ui/core/TextField";
 import MenuItem from "@material-ui/core/MenuItem";
 import axios from "axios";
+import io from "socket.io-client";
 
 export default class GuestScreen extends Component {
   constructor(props) {
     super(props);
+    this.socket = io.connect("http://localhost:5000");
     this.state = {
       username: "",
       room: "",
@@ -31,7 +33,7 @@ export default class GuestScreen extends Component {
         console.log(error);
       });
 
-    this.props.socket.on("message", ({ username, msg, chatHistory, showHistoryFor }) => {
+    this.socket.on("message", ({ username, msg, chatHistory, showHistoryFor }) => {
       let statusCopy = Object.assign({},this.state);
       statusCopy["chatHistory"] = chatHistory;
       statusCopy["history"] = chatHistory[this.state.room];
@@ -44,7 +46,7 @@ export default class GuestScreen extends Component {
       },200)
     });
 
-    this.props.socket.on("notification", ({username,msg,chatHistory,showHistory}) => {
+    this.socket.on("notification", ({username,msg,chatHistory,showHistory}) => {
       const user = username;
       let statusCopy = Object.assign({},this.state);
       statusCopy["chatHistory"] = chatHistory;
@@ -63,7 +65,7 @@ export default class GuestScreen extends Component {
       },200)
     });
 
-    this.props.socket.on("setGuest", ({username})=>{
+    this.socket.on("setGuest", ({username})=>{
       if(this.state.username === ''){
         this.setState({username:username});
       }
@@ -76,7 +78,7 @@ export default class GuestScreen extends Component {
     if (currentRoom !== "") this.props.socket.emit("leave", { username, currentRoom });
     this.setState({ room: e.target.value, chat: [] });
     const newRoom = e.target.value;
-    this.props.socket.emit("join", { username, newRoom });
+    this.socket.emit("join", { username, newRoom });
   };
 
   onMessageSent = msg => {
@@ -89,7 +91,7 @@ export default class GuestScreen extends Component {
     console.log(obj[room]);
 
     const username = this.state.username ? this.state.username : 'guest';
-    this.props.socket.emit("message", { username, msg, room, obj });
+    this.socket.emit("message", { username, msg, room, obj });
     this.setState({ message: "" });
   };
 

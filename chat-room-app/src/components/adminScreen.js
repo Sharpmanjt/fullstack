@@ -25,7 +25,8 @@ export default class AdminScreen extends Component {
       postPerPage : 5,
       setPostsPerPage : 5,
       refreshPagination: false,
-      sort : 'Id'
+      sort : 'Id',
+      prevData : []
     };
     this.getTableData("eventHistory");
   }
@@ -125,54 +126,89 @@ export default class AdminScreen extends Component {
   }
 
   filterTable(value){
-    let length = value.length;
+    let length = value.length; //Gets the length of the value in the textbox
+    /*------------------
+      If the table is not populated with the initial dataset
+    /* */
+    if(this.state.prevData.length != 0){
+      this.getTableData("eventHistory")
+      if(length == 0){ //If the value passed is empty then we want to fetch the initial data
+        return;
+      }     
+    }
+
+    /*-------------------
+      Filter the dataset based on the input passed
+    /* */
+
     let newData = []
     for(let index in this.state.data){
       if(typeof this.state.data[index] == "object"){
         for(let obj in this.state.data[index]){
-          if(obj == "_id" && this.state.data[index][obj].substring(0,length) == value){
+          if(obj == "_id" && this.state.data[index][obj].substring(0,length) == value){  
+            this.setState({prevData:this.state.data});
             newData.push(this.state.data[index])
-            this.setState({data:newData});
+            this.setState({data:newData})
           }
         }
       }
     }
   }
 
-  sort(value){
+  sort = (value) => {
     console.log("Sorting: "+value);
     this.setState({sort:value});
     let newData = [];
     for(let index in this.state.data){
       if(typeof this.state.data[index] == "object"){
-        console.log(this.state.data[index]);
           switch(value){
             case "Id":
               //"_id"
               newData = this.state.data.sort((a,b)=>{
-                return a['_id'] - b['_id'];
+                return (a['_id']>b['_id']) ? 1:-1
               })
               this.setState({data:newData});
               break;
             case "Type":
               //"type"
+              newData = this.state.data.sort((a,b)=>{
+                return (a['type']>b['type']) ? 1:-1
+              })
+              this.setState({data:newData});
               break;
             case "Date":
               //date
+              newData = this.state.data.sort((a,b)=>{
+                return (a['date']>b['date']) ? 1:-1
+              })
+              this.setState({data:newData});
               break;
             case "Time":
-              //date
+              //time
+              newData = this.state.data.sort((a,b)=>{
+                return (a['time']>b['time']) ? 1:-1
+              })
+              this.setState({data:newData});
               break;
             case "User":
               //user
+              newData = this.state.data.sort((a,b)=>{
+                return (a['user']>b['user']) ? 1:-1
+              })
+              this.setState({data:newData});
               break;
             case "PPID":
               //ppid
+              newData = this.state.data.sort((a,b)=>{
+                return (a['ppid']>b['ppid']) ? 1:-1
+              })
+              this.setState({data:newData});
               break;
           }
         }
+      }
   }
-}
+
 
 
   render() {
@@ -207,22 +243,7 @@ export default class AdminScreen extends Component {
               variant="outlined"
               className="filter-table"
             ></TextField>
-            <TextField
-            id="sort"
-            select
-            label="Sort by"
-            value={this.state.sort}
-            onChange={(e) => this.sort(e.target.value)}
-            variant="outlined"
-            className="select-sort"
-          >
-            {this.state.tableColumns
-              .map(column => (
-                <MenuItem value={column} key={column}>
-                  {column}
-                </MenuItem>
-              ))}
-          </TextField>
+ 
         </div>
         <div className="table-div">
         <DataTable
@@ -231,6 +252,7 @@ export default class AdminScreen extends Component {
             key={this.state.data}
             openDialog={this.openDialog}
             showRoomTable={this.state.showRoomTable}
+            sort={this.sort}
           ></DataTable> 
         </div>
         <div className="pagination-div">

@@ -5,6 +5,7 @@ import {BrowserRouter as Router,Route,
   Redirect,Switch} from 'react-router-dom';
 import Paper from "@material-ui/core/Paper";
 import axios from "axios";
+import App from "../App";
 
 export default class AdminLogin extends Component {
   constructor(props) {
@@ -62,9 +63,9 @@ export default class AdminLogin extends Component {
       }else{
         const token = response.data.token;
         localStorage.setItem('jwtToken',token);
-        console.log(response.data.message);
-        this.props.setAdminLoggedIn(true);
-        this.props.setLoggingIn(false);
+        localStorage.setItem('signed',true);
+        let app = new App();
+        app.authSucess();
       }
 
     }

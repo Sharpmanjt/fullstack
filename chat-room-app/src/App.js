@@ -5,6 +5,9 @@ import AdminLogin from "../src/components/adminLogin";
 import AdminScreen from "./components/adminScreen";
 import GuestScreen from "../src/components/guestScreen";
 import io from "socket.io-client";
+import { Router } from 'react-router-dom';
+import  Routes  from './routes/routes';
+import history from './services/history';
 
 export default class App extends Component {
   constructor(props) {
@@ -13,6 +16,29 @@ export default class App extends Component {
       isAdminLoggedIn: false,
       loggingIn: false
     };
+
+    let signed = localStorage.getItem("signed");
+    if(signed){
+      this.setState({isAdminLoggedIn:true});
+    }else{
+      this.setState({isAdminLoggedIn:false})
+    }
+  }
+
+  loginAdmin = () => {
+    history.push('/signIn')
+  }
+  
+  logoutAdmin = () => {
+    localStorage.removeItem('signed');
+    this.setState({isAdminLoggedIn:false})
+    history.push('/');
+  }
+
+  authSucess = () => {
+    this.setState({isAdminLoggedIn:true})
+    this.render();
+    history.push('/dashboard')
   }
 
   setLoggingIn = isLoggingIn => {
@@ -39,29 +65,16 @@ export default class App extends Component {
     
     return (
       <div>
-        {this.state.loggingIn ? (
-          <AdminLogin
-            setAdminLoggedIn={this.setAdminLoggedIn}
-            setLoggingIn={this.setLoggingIn}
-            handleCancel={this.cancelLoginDialog}
-          ></AdminLogin>
-        ) : (
-          [
-            <Navbar
-              setAdminLoggedIn={this.setAdminLoggedIn}
-              setLoggingIn={this.setLoggingIn}
-              isAdminLoggedIn={this.state.isAdminLoggedIn}
-            ></Navbar>,
-            <div>
-              {this.state.isAdminLoggedIn ? (
-                <AdminScreen></AdminScreen>
-              ) : (
-                <GuestScreen socket={socket}></GuestScreen>
-              )}
-            </div>
-          ]
-        )}
+        <Navbar
+                isAdminLoggedIn={this.state.isAdminLoggedIn}
+                adminLogin={this.loginAdmin}
+                adminLogout={this.logoutAdmin}
+          ></Navbar>
+        <Router history={history}>
+          <Routes />
+        </Router>
       </div>
+     
     );
   }
 }

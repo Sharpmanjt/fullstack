@@ -31,7 +31,10 @@ export default class DataTable extends Component {
           <TableHead>
             <TableRow>
               {this.props.tableColumns.map(column => (
-                <TableCell key={column}>{column}</TableCell>
+                  <TableCell key={column}>
+                    {column}
+                    <span className="sort-span" onClick={()=>this.props.sort(column)}>&nbsp;&nbsp;&lt;&gt;</span>
+                  </TableCell>
               ))}
             </TableRow>
           </TableHead>

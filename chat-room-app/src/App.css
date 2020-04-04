@@ -156,3 +156,9 @@ form div, .room-dialog-name, .room-dialog-status {
   left: 55%;
   width: 12%;
 }
+.table-cell{
+  display: flex;
+}
+.sort-span:hover{
+  cursor: pointer;
+}

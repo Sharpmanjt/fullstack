@@ -5,13 +5,13 @@ export default class Pagination extends Component{
     constructor(props, paginate){
         super(props);
         const pageNumbers = [];
-        console.log(this.props.totalPosts)
+        let count = 0;
         //console.log(this.props.postsPerPage)
         for(let i = 0; i<=Math.ceil(this.props.totalPosts / this.props.postsPerPage);i++){
             pageNumbers.push(i);
         }
         this.state = {
-            totalPosts : this.props.totalPosts,
+            totalPosts : count,
             numPages : pageNumbers,
             pageShowed: [1,2,3,4,5],
             currentPage : 1
@@ -20,10 +20,12 @@ export default class Pagination extends Component{
 
     componentWillReceiveProps({totalPosts,postsPerPage}) {
         let pageNumbers = [];
+        let count = 0;
         for(let i = 0; i<=Math.ceil(totalPosts /postsPerPage);i++){
             pageNumbers.push(i);
+            count++;
         }
-        this.setState({numPages:pageNumbers});
+        this.setState({numPages:pageNumbers,totalPosts:count});
       }
 
     moveSection(pageNum){

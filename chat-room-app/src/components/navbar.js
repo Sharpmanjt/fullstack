@@ -6,29 +6,54 @@ import Typography from "@material-ui/core/Typography";
 
 export default class Navbar extends Component {
   constructor(props) {
+    /* ------------------------------------
+      It will check if the user has been authenticated and it will change
+      the value of the log button according to that
+    /* ------------------------------------ */
     super(props);
+    let signed = localStorage.getItem("signed");
     this.state = {
-      isAdminLoggedIn: this.props.isAdminLoggedIn
+      isAdminLoggedIn: signed,
+      reload:false
     };
+
   }
 
   adminLogin = () => {
-    this.props.setLoggingIn(true);
+    this.props.adminLogin()
   };
 
   adminLogout = () => {
-    this.props.setAdminLoggedIn(false);
+    this.props.adminLogout()
   };
 
-  componentDidUpdate(prevProps) {
-    if (prevProps.isAdminLoggedIn !== this.props.isAdminLoggedIn) {
-      this.setState({
-        isAdminLoggedIn: this.props.isAdminLoggedIn
-      });
-    }
+  /*componentDidUpdate(prevProps) {
+    console.log("Update called-1");
+    this.setState({
+      isAdminLoggedIn:this.props.isAdminLoggedIn
+    })
+  }*/
+
+  
+
+
+  isAdminLoggedIn(){
+    let signed = localStorage.getItem("signed");
+    console.log("Signed: "+signed);
+    return (signed == null ) ? false : true; 
+  }
+
+  setAdminLogged(){
+    let signed = localStorage.getItem("signed");
+    console.log("set called: "+signed);
+    this.setState({
+      isAdminLoggedIn:signed
+    })
   }
 
   render() {
+    let signed = (localStorage.getItem("signed") == null) ? false : true
+    console.log("Setting signed on render with value: "+signed);
     return (
       <div>
         <AppBar position="static">
@@ -37,7 +62,7 @@ export default class Navbar extends Component {
             <Typography variant="h6" className="title">
               CHATTY CHAT
             </Typography>
-            {this.state.isAdminLoggedIn ? (
+            {signed ? (
               <Button
                 variant="contained"
                 color="secondary"
