@@ -37,7 +37,6 @@ export default class App extends Component {
 
   authSucess = () => {
     this.setState({isAdminLoggedIn:true})
-    this.render();
     history.push('/dashboard')
   }
 

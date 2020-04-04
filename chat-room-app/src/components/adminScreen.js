@@ -219,8 +219,6 @@ export default class AdminScreen extends Component {
     const indexOfLastPost = this.state.currentPage * this.state.postPerPage;
     const indeOfFirstPost = indexOfLastPost - this.state.postPerPage;
     const currentPosts = this.state.data.slice(indeOfFirstPost, indexOfLastPost);
-    const reload = 1+this.currentPosts;
-    //sconsole.log(this.state.data);
 
     return (
       <div>

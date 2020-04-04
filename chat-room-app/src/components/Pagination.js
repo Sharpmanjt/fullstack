@@ -52,9 +52,9 @@ export default class Pagination extends Component{
                                 }else{
                                 return <li key={number++} className="page-item">
                                     {number>5 ? (
-                                        <a onClick={ ()=> {this.moveSection(this.state.currentPage)}} href="!#" className="next-arrow">></a>
+                                        <a onClick={ ()=> {this.moveSection(this.state.currentPage)}} className="next-arrow">></a>
                                     ):(
-                                        <a onClick={()=> {this.props.paginate(number++); this.setState({currentPage:number-2})}} href="!#" className="page-link">
+                                        <a onClick={()=> {this.props.paginate(number++); this.setState({currentPage:number-2})}} className="page-link">
                                         {number++}
                                         </a>
                                     )}
