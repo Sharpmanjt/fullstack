@@ -9,6 +9,7 @@ export default class Pagination extends Component{
         //console.log(this.props.postsPerPage)
         for(let i = 0; i<=Math.ceil(this.props.totalPosts / this.props.postsPerPage);i++){
             pageNumbers.push(i);
+            count++;
         }
         this.state = {
             totalPosts : count,
