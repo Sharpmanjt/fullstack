@@ -28,32 +28,24 @@ export default class Navbar extends Component {
   };
 
   /*componentDidUpdate(prevProps) {
-    console.log("Update called-1");
     this.setState({
       isAdminLoggedIn:this.props.isAdminLoggedIn
     })
   }*/
-
   
-
-
   isAdminLoggedIn(){
     let signed = localStorage.getItem("signed");
-    console.log("Signed: "+signed);
     return (signed == null ) ? false : true; 
   }
 
   setAdminLogged(){
     let signed = localStorage.getItem("signed");
-    console.log("set called: "+signed);
     this.setState({
       isAdminLoggedIn:signed
     })
   }
 
   render() {
-    let signed = (localStorage.getItem("signed") == null) ? false : true
-    console.log("Setting signed on render with value: "+signed);
     return (
       <div>
         <AppBar position="static">
@@ -62,7 +54,7 @@ export default class Navbar extends Component {
             <Typography variant="h6" className="title">
               CHATTY CHAT
             </Typography>
-            {signed ? (
+            {this.props.isAdminLoggedIn ? (
               <Button
                 variant="contained"
                 color="secondary"

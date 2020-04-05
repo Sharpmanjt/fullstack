@@ -8,9 +8,11 @@ import React, {Component} from "react";
 import { Route, Redirect } from "react-router-dom";
 import PropTypes from "prop-types";
 import Navbar from '../components/navbar';
+import AdminLogin from '../components/adminLogin';
 
 export default function RouteWrapper({
     component: Component,
+    authSuccess,
     isPrivate,
     ...rest
 }){
@@ -25,10 +27,15 @@ export default function RouteWrapper({
 
     // If route is public and user is logged in
     if(!isPrivate && signed){
-        return <Redirect to="/dashboard"/>
+        return <Redirect to="/dashboard" />
     }
 
-    return <Route {...rest} component={Component} />; 
+    if(Component.name == 'AdminLogin'){
+        return <Route {...rest} render={(props)=><AdminLogin {...props} authSuccess={authSuccess}/>}  />; 
+    }
+
+
+    return <Route {...rest} authSucess={authSuccess} component={Component} />; 
 }
 
 RouteWrapper.propTypes = {

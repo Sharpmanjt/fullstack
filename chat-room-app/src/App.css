@@ -151,11 +151,7 @@ form div, .room-dialog-name, .room-dialog-status {
   margin-bottom: 2%;
   margin-left:11%;
 }
-.select-sort{
-  position: relative;
-  left: 55%;
-  width: 12%;
-}
+
 .table-cell{
   display: flex;
 }
@@ -164,4 +160,9 @@ form div, .room-dialog-name, .room-dialog-status {
 }
 .delete_btn{
   margin-left:12%;
+}
+.column-sort{
+  position: relative;
+  left:4%;
+  width:10%;
 }

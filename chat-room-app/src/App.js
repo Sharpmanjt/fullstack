@@ -19,14 +19,14 @@ export default class App extends Component {
 
     let signed = localStorage.getItem("signed");
     if(signed){
-      this.setState({isAdminLoggedIn:true});
+      this.state.isAdminLoggedIn = true
     }else{
-      this.setState({isAdminLoggedIn:false})
+      this.state.isAdminLoggedIn = false
     }
   }
 
   loginAdmin = () => {
-    history.push('/signIn')
+    history.push('/signIn',this.authSucess)
   }
   
   logoutAdmin = () => {
@@ -35,9 +35,14 @@ export default class App extends Component {
     history.push('/');
   }
 
-  authSucess = () => {
-    this.setState({isAdminLoggedIn:true})
-    history.push('/dashboard')
+  authSuccess = () => {
+    let statusCopy = Object.assign({},this.state);
+    statusCopy["isAdminLoggedIn"] = true;
+    statusCopy["logginIn"] = false;
+    this.setState(statusCopy);
+    setTimeout(()=>{
+      history.push('/dashboard')
+    },100)
   }
 
   setLoggingIn = isLoggingIn => {
@@ -60,7 +65,6 @@ export default class App extends Component {
   }
 
   render() {
-    const socket = io.connect("http://localhost:5000");
     
     return (
       <div>
@@ -70,7 +74,9 @@ export default class App extends Component {
                 adminLogout={this.logoutAdmin}
           ></Navbar>
         <Router history={history}>
-          <Routes />
+          <Routes
+            authSuccess={this.authSuccess}
+          />
         </Router>
       </div>
      

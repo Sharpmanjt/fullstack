@@ -26,7 +26,9 @@ export default class AdminScreen extends Component {
       setPostsPerPage : 5,
       refreshPagination: false,
       sort : 'Id',
-      prevData : []
+      prevData : [],
+      filterValue : '',
+      currentTable: ''
     };
     this.getTableData("eventHistory");
   }
@@ -34,7 +36,8 @@ export default class AdminScreen extends Component {
   showEventHistory = () => {
     this.setState({
       tableColumns: ["Id", "Type", "Date", "Time", "User", "PPID"],
-      showRoomTable: false
+      showRoomTable: false,
+      currentTable : "eventHistory"
     });
     this.getTableData("eventHistory");
   };
@@ -54,7 +57,8 @@ export default class AdminScreen extends Component {
         "Message",
         "Room"
       ],
-      showRoomTable: false
+      showRoomTable: false,
+      currentTable : "chatHistory"
     });
     this.getTableData("chatHistory");
   };
@@ -69,7 +73,8 @@ export default class AdminScreen extends Component {
         "Status",
         "Action"
       ],
-      showRoomTable: true
+      showRoomTable: true,
+      currentTable:"rooms"
     });
     this.getTableData("rooms");
   };
@@ -134,27 +139,53 @@ export default class AdminScreen extends Component {
     this.setState({currentPage:pageNumber})
   }
 
+  parseValue(value){
+    /*--------------------------------
+      This method transforms the value into valid object key names
+      to be used by the filterig method
+    /* */
+
+    switch(value){
+      case "Id":
+        return "_id"
+      case "Date Created":
+        return "dateCreated"
+      case "Date Edited":
+        return "dateEdited"
+      default: // If the value is only one word and not Id
+        return value.toLowerCase();
+    }
+  }
+
   filterTable(value){
+
+    if(this.state.filterValue != '' && value.length < this.state.filterValue.length){
+      this.getTableData(this.state.currentTable);
+    } 
+    this.setState({filterValue:value});
     let length = value.length; //Gets the length of the value in the textbox
     /*------------------
       If the table is not populated with the initial dataset
     /* */
-    if(this.state.prevData.length != 0){
-      this.getTableData("eventHistory")
+    if(this.state.prevData.length != 0 && value.length == 0){
+      this.getTableData(this.state.currentTable)
       if(length == 0){ //If the value passed is empty then we want to fetch the initial data
         return;
       }     
     }
+
 
     /*-------------------
       Filter the dataset based on the input passed
     /* */
 
     let newData = []
+    let column = this.parseValue(this.state.sort);
+
     for(let index in this.state.data){
       if(typeof this.state.data[index] == "object"){
         for(let obj in this.state.data[index]){
-          if(obj == "_id" && this.state.data[index][obj].substring(0,length) == value){  
+          if(obj == column && this.state.data[index][obj].substring(0,length) == value){  
             this.setState({prevData:this.state.data});
             newData.push(this.state.data[index])
             this.setState({data:newData})
@@ -164,8 +195,11 @@ export default class AdminScreen extends Component {
     }
   }
 
+  onChangeSortColumn = (value) => {
+    this.setState({sort:value.target.value})
+  }
+
   sort = (value) => {
-    console.log("Sorting: "+value);
     this.setState({sort:value});
     let newData = [];
     for(let index in this.state.data){
@@ -176,7 +210,6 @@ export default class AdminScreen extends Component {
               newData = this.state.data.sort((a,b)=>{
                 return (a['_id']>b['_id']) ? 1:-1
               })
-              console.log(JSON.stringify(newData));
               this.setState({data:newData});
               break;
             case "Type":
@@ -293,7 +326,22 @@ export default class AdminScreen extends Component {
               variant="outlined"
               className="filter-table"
             ></TextField>
- 
+            <TextField
+              id="column"
+              select
+              label="Filter by"
+              value={this.state.sort}
+              onChange={(e) => this.onChangeSortColumn(e)}
+              variant="outlined"
+              className="column-sort"
+              >
+              {this.state.tableColumns
+                .map(column => (
+                  <MenuItem value={column} key={column}>
+                    {column}
+                  </MenuItem>
+              ))}
+          </TextField>
         </div>
         <div className="table-div">
         <DataTable

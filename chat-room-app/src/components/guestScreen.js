@@ -75,7 +75,7 @@ export default class GuestScreen extends Component {
   onChangeRoom = (e) => {
     const username = this.state.username ? this.state.username : 'guest';
     const currentRoom = this.state.room;
-    if (currentRoom !== "") this.props.socket.emit("leave", { username, currentRoom });
+    if (currentRoom !== "") this.socket.emit("leave", { username, currentRoom });
     this.setState({ room: e.target.value, chat: [] });
     const newRoom = e.target.value;
     this.socket.emit("join", { username, newRoom });
@@ -88,7 +88,6 @@ export default class GuestScreen extends Component {
     let room = this.state.room;
     let obj = {};
     obj[room] = list;
-    console.log(obj[room]);
 
     const username = this.state.username ? this.state.username : 'guest';
     this.socket.emit("message", { username, msg, room, obj });

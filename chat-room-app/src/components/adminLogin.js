@@ -64,8 +64,7 @@ export default class AdminLogin extends Component {
         const token = response.data.token;
         localStorage.setItem('jwtToken',token);
         localStorage.setItem('signed',true);
-        let app = new App();
-        app.authSucess();
+        this.props.authSuccess.authSuccess();
       }
 
     }
