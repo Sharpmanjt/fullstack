@@ -61,7 +61,7 @@ export default class GuestScreen extends Component {
 
       this.setState(statusCopy);
       setTimeout(()=>{
-        console.log(JSON.stringify(this.state))
+        //console.log(JSON.stringify(this.state))
       },200)
     });
 

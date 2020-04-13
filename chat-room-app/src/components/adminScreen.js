@@ -28,7 +28,7 @@ export default class AdminScreen extends Component {
       sort : 'Id',
       prevData : [],
       filterValue : '',
-      currentTable: ''
+      currentTable: 'eventHistory'
     };
     this.getTableData("eventHistory");
   }
@@ -102,9 +102,7 @@ export default class AdminScreen extends Component {
 
   deleteRoom = async (room = null) => {
     if(room._id){
-      console.log("Called with id: "+room._id);
       const response =  await axios.post("http://localhost:5000/api/rooms/delete",{id:room._id});
-      console.log("Response: "+JSON.stringify(response));
       this.getTableData('rooms');
     }
   }
@@ -159,6 +157,10 @@ export default class AdminScreen extends Component {
 
   filterTable(value){
 
+    if(value == ''){
+      this.getTableData(this.state.currentTable);
+    }
+
     if(this.state.filterValue != '' && value.length < this.state.filterValue.length){
       this.getTableData(this.state.currentTable);
     } 
@@ -181,15 +183,22 @@ export default class AdminScreen extends Component {
 
     let newData = []
     let column = this.parseValue(this.state.sort);
+    let dataChanged = false; // Boolean that turns true when the filter return a result
 
     for(let index in this.state.data){
       if(typeof this.state.data[index] == "object"){
         for(let obj in this.state.data[index]){
           if(obj == column && this.state.data[index][obj].substring(0,length) == value){  
             this.setState({prevData:this.state.data});
-            newData.push(this.state.data[index])
+            newData.push(this.state.data[index]);
+            dataChanged = true;
             this.setState({data:newData})
           }
+        }
+        if(!dataChanged){
+          let statusCopy = Object.assign({},this.state);
+          statusCopy["data"] = [[]];
+          this.setState(statusCopy);
         }
       }
     }

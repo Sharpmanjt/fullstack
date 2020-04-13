@@ -37,7 +37,6 @@ export default class Pagination extends Component{
         numpages.shift();
         numpages.push(nextPage);
         this.setState({numPages:numpages, currentPage:nextPage});
-        console.log("Move Section: "+pageNum);
     }
 
     render(){
